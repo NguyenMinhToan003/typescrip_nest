@@ -10,6 +10,7 @@ import { ReviewsModule } from './module/reviews/reviews.module'
 import { PlaylistsModule } from './module/playlists/playlists.module'
 import { BannersModule } from './module/banners/banners.module'
 import { TagsModule } from './module/tags/tags.module'
+import { AuthModule } from './auth/auth.module'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TagsModule } from './module/tags/tags.module'
       inject: [ConfigService],
     }),
     TagsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

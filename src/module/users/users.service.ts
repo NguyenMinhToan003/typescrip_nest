@@ -58,15 +58,21 @@ export class UsersService {
     }
   }
 
-  async findOne(findUserDto: DeleteUserDto) {
+  async findOneById(id: string) {
     try {
-      const user = await this.userModel.findById(findUserDto.id)
+      const user = await this.userModel.findById(id)
       return user
     } catch (error) {
       return error
     }
   }
-
+  async findOneByEmail(email: string) {
+    try {
+      return await this.userModel.findOne({ email })
+    } catch (error) {
+      return error
+    }
+  }
   async update(updateUserDto: UpdateUserDto) {
     console.log(updateUserDto)
     try {
