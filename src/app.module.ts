@@ -9,6 +9,7 @@ import { CategoriesModule } from './module/categories/categories.module'
 import { ReviewsModule } from './module/reviews/reviews.module'
 import { PlaylistsModule } from './module/playlists/playlists.module'
 import { BannersModule } from './module/banners/banners.module'
+import { TagsModule } from './module/tags/tags.module'
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BannersModule } from './module/banners/banners.module'
       }),
       inject: [ConfigService],
     }),
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

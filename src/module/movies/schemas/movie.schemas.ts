@@ -20,8 +20,8 @@ export class Movie {
   @Prop()
   video_url: string // URL video
 
-  @Prop({ type: [String] })
-  genres: string[] // Thể loại (e.g., "Action", "Comedy")
+  @Prop({ type: [Types.ObjectId], ref: 'Tag' })
+  tags: Types.ObjectId[] // Danh sách tag
 
   @Prop({ type: [String] })
   cast: string[] // Diễn viên (e.g., "Tom Cruise", "Angelina Jolie")
@@ -43,5 +43,8 @@ export class Movie {
 
   @Prop()
   language: string // Ngôn ngữ (e.g., "English", "Vietnamese")
+
+  @Prop()
+  status: string // Trạng thái ("coming_soon", "now_showing", "end_showing")
 }
 export const MovieSchema = SchemaFactory.createForClass(Movie)
