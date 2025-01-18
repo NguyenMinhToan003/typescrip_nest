@@ -29,8 +29,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param() findUserDto: DeleteUserDto) {
-    return this.usersService.findOne(findUserDto)
+  findOneById(@Param('id') id: string) {
+    return this.usersService.findOneById(id)
   }
 
   @Patch()
