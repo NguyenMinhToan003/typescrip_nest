@@ -12,6 +12,7 @@ import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { DeleteUserDto } from './dto/delete-user.dto'
+import { find } from 'rxjs'
 
 @Controller('users')
 export class UsersController {
@@ -28,8 +29,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id)
+  findOne(@Param() findUserDto: DeleteUserDto) {
+    return this.usersService.findOne(findUserDto)
   }
 
   @Patch()

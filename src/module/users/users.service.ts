@@ -58,13 +58,10 @@ export class UsersService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(findUserDto: DeleteUserDto) {
     try {
-      const user = await this.userModel.findById(id)
-      return {
-        user,
-        message: 'lấy thông tin người dùng thành công',
-      }
+      const user = await this.userModel.findById(findUserDto.id)
+      return user
     } catch (error) {
       return error
     }
