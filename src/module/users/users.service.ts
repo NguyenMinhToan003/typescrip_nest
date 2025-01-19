@@ -59,34 +59,21 @@ export class UsersService {
   }
 
   async findOneById(id: string) {
-    try {
-      const user = await this.userModel.findById(id)
-      return user
-    } catch (error) {
-      return error
-    }
+    const user = await this.userModel.findById(id)
+    return user
   }
   async findOneByEmail(email: string) {
-    try {
-      return await this.userModel.findOne({ email })
-    } catch (error) {
-      return error
-    }
+    return await this.userModel.findOne({ email })
   }
   async update(updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto)
-    try {
-      return await this.userModel.updateOne(
-        { _id: updateUserDto.id },
-        {
-          name: updateUserDto.name,
-          email: updateUserDto.email,
-          status: updateUserDto.status,
-        },
-      )
-    } catch (error) {
-      return error
-    }
+    return await this.userModel.updateOne(
+      { _id: updateUserDto.id },
+      {
+        name: updateUserDto.name,
+        email: updateUserDto.email,
+        status: updateUserDto.status,
+      },
+    )
   }
 
   async remove(deleteUserDto: DeleteUserDto) {
