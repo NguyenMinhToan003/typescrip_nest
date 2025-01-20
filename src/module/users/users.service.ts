@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Query } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectModel } from '@nestjs/mongoose'
@@ -7,6 +7,9 @@ import { Model } from 'mongoose'
 import { hashPasswordHelper } from 'src/helpers/utils'
 import aqp from 'api-query-params'
 import { DeleteUserDto } from './dto/delete-user.dto'
+import { CreateAuthDto } from '@/auth/dto/create-auth.dto'
+import { v4 as uuidv4 } from 'uuid'
+import dayjs from 'dayjs'
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
@@ -19,17 +22,14 @@ export class UsersService {
       throw new BadRequestException('Email này đã tồn tại')
     }
     const hassPassword = await hashPasswordHelper(createUserDto.password)
-    try {
-      const user = await this.userModel.create({
-        ...createUserDto,
-        password: hassPassword,
-      })
-      return {
-        message: 'Người dùng đã được tạo',
-        user,
-      }
-    } catch (error) {
-      return error
+
+    const user = await this.userModel.create({
+      ...createUserDto,
+      password: hassPassword,
+    })
+    return {
+      message: 'Người dùng đã được tạo',
+      user,
     }
   }
 
@@ -78,5 +78,26 @@ export class UsersService {
 
   async remove(deleteUserDto: DeleteUserDto) {
     return await this.userModel.deleteOne({ _id: deleteUserDto.id })
+  }
+  async register(registertDto: CreateAuthDto) {
+    const { email, password, name } = registertDto
+    const checkEmail = await this.checkEmail(email)
+    if (checkEmail) {
+      throw new BadRequestException('Email này đã tồn tại')
+    }
+    const hassPassword = await hashPasswordHelper(password)
+
+    const user = await this.userModel.create({
+      email,
+      name,
+      password: hassPassword,
+      isActivated: false,
+      code_verify: uuidv4(),
+      code_verify_expires: dayjs().add(1, 'day').toDate(),
+    })
+    return {
+      message: 'Người dùng đã được tạo',
+      user,
+    }
   }
 }
