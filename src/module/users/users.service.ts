@@ -10,9 +10,13 @@ import { DeleteUserDto } from './dto/delete-user.dto'
 import { CreateAuthDto } from '@/auth/dto/create-auth.dto'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
+import { MailerService } from '@nestjs-modules/mailer'
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private readonly mailerService: MailerService,
+  ) {}
   checkEmail = async (email: string) => {
     return (await this.userModel.findOne({ email })) ? true : false
   }
@@ -86,14 +90,25 @@ export class UsersService {
       throw new BadRequestException('Email này đã tồn tại')
     }
     const hassPassword = await hashPasswordHelper(password)
-
+    const code_verify = uuidv4()
     const user = await this.userModel.create({
       email,
       name,
       password: hassPassword,
       isActivated: false,
-      code_verify: uuidv4(),
-      code_verify_expires: dayjs().add(1, 'day').toDate(),
+      code_verify: code_verify,
+      code_verify_expires: dayjs().add(5, 'minutes').toDate(),
+    })
+    await this.mailerService.sendMail({
+      to: 'nguyentoan04.0003@gmail.com', // list of receivers
+      from: 'noreply@nestjs.com', // sender address
+      subject: 'Testing Nest MailerModule ✔', // Subject line
+      text: 'Welcome', // plaintext body
+      template: 'template_verify',
+      context: {
+        name: user?.name || user?.email,
+        activationCode: code_verify,
+      },
     })
     return {
       message: 'Người dùng đã được tạo',
