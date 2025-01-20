@@ -23,4 +23,7 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
     }
   }
+  async handlerRegister(registertDto: any) {
+    return this.usersService.register(registertDto)
+  }
 }
