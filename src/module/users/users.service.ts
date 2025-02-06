@@ -100,19 +100,17 @@ export class UsersService {
       code_verify_expires: dayjs().add(5, 'minutes').toDate(),
     })
     await this.mailerService.sendMail({
-      to: 'nguyentoan04.0003@gmail.com', // list of receivers
-      from: 'noreply@nestjs.com', // sender address
-      subject: 'Testing Nest MailerModule ✔', // Subject line
-      text: 'Welcome', // plaintext body
+      to: email,
+      from: 'noreply@nestjs.com',
+      subject: 'Xác thực tài khoản',
       template: 'template_verify',
       context: {
-        name: user?.name || user?.email,
+        name: name || email,
         activationCode: code_verify,
       },
     })
     return {
-      message: 'Người dùng đã được tạo',
-      user,
+      id: user._id,
     }
   }
 }

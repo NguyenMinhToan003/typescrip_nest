@@ -6,7 +6,12 @@ import { ValidationPipe } from '@nestjs/common'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const configService = app.get(ConfigService)
-  const port = configService.get<number>('PORT')
+  const port = configService.get<number>('PORT_BACKEND')
+  app.enableCors({
+    origin: [configService.get<string>('ADD_FRONTEND')], // URL của ứng dụng Next.js
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Cho phép gửi cookie hoặc header xác thực
+  })
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

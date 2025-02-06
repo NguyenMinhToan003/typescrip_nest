@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common'
 import { UsersService } from '@/module/users/users.service'
 import { JwtService } from '@nestjs/jwt'
 import { comparePasswordHelper } from '@/helpers/utils'
@@ -20,10 +20,26 @@ export class AuthService {
   async login(user: any) {
     const payload = { data: user, sub: user._id }
     return {
+      data: {
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        id: user._id,
+      },
+      statusCode: HttpStatus.OK,
       access_token: await this.jwtService.signAsync(payload),
     }
   }
+
   async handlerRegister(registertDto: any) {
-    return this.usersService.register(registertDto)
+    const user = await this.usersService.register(registertDto)
+    if (user) {
+      return {
+        message: 'Hãy kiểm tra email để xác nhận tài khoản',
+        success: true,
+        action: 'verify',
+        user_id: user.id,
+      }
+    }
   }
 }
