@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsOptional } from 'class-validator'
+import { IsMongoId, IsNotEmpty } from 'class-validator'
 
 export class DeleteUserDto {
   @IsNotEmpty({ message: 'Id không được để trống' })
