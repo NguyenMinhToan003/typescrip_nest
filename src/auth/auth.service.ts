@@ -1,7 +1,8 @@
-import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { UsersService } from '@/module/users/users.service'
 import { JwtService } from '@nestjs/jwt'
 import { comparePasswordHelper } from '@/helpers/utils'
+import { ChangePasswordDto } from './dto/create-auth.dto'
 
 @Injectable()
 export class AuthService {
@@ -20,14 +21,13 @@ export class AuthService {
   async login(user: any) {
     const payload = { data: user, sub: user._id }
     return {
-      data: {
+      user: {
         email: user.email,
         name: user.name,
         role: user.role,
         id: user._id,
       },
-      statusCode: HttpStatus.OK,
-      access_token: await this.jwtService.signAsync(payload),
+      accessToken: await this.jwtService.signAsync(payload),
     }
   }
 
@@ -35,11 +35,26 @@ export class AuthService {
     const user = await this.usersService.register(registertDto)
     if (user) {
       return {
-        message: 'Hãy kiểm tra email để xác nhận tài khoản',
-        success: true,
-        action: 'verify',
-        user_id: user.id,
+        id: user.id,
       }
+    }
+  }
+  async resentCodeVerify(id: string) {
+    const user = await this.usersService.resentCodeVerify(id)
+    return {
+      id: user.id,
+    }
+  }
+  async checkCodeVerify(id: string, code_verify: string) {
+    const user = await this.usersService.checkCodeVerify(id, code_verify)
+    return {
+      id: user.id,
+    }
+  }
+  async changePassword(changePasswordDto: ChangePasswordDto) {
+    const user = await this.usersService.changePassword(changePasswordDto)
+    return {
+      id: user.id,
     }
   }
 }

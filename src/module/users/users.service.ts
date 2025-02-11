@@ -4,10 +4,10 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectModel } from '@nestjs/mongoose'
 import { User } from './schemas/user.schemas'
 import { Model } from 'mongoose'
-import { hashPasswordHelper } from 'src/helpers/utils'
+import { comparePasswordHelper, hashPasswordHelper } from 'src/helpers/utils'
 import aqp from 'api-query-params'
 import { DeleteUserDto } from './dto/delete-user.dto'
-import { CreateAuthDto } from '@/auth/dto/create-auth.dto'
+import { ChangePasswordDto, CreateAuthDto } from '@/auth/dto/create-auth.dto'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import { MailerService } from '@nestjs-modules/mailer'
@@ -99,18 +99,87 @@ export class UsersService {
       code_verify: code_verify,
       code_verify_expires: dayjs().add(5, 'minutes').toDate(),
     })
+    await this.sentEmailVerify(email, code_verify)
+    return {
+      id: user._id,
+    }
+  }
+  async sentEmailVerify(email: string, code_verify: string) {
     await this.mailerService.sendMail({
       to: email,
       from: 'noreply@nestjs.com',
       subject: 'Xác thực tài khoản',
       template: 'template_verify',
       context: {
-        name: name || email,
+        name: email,
         activationCode: code_verify,
       },
     })
+  }
+  async resentCodeVerify(id: string) {
+    const user = await this.userModel.findOne({ _id: id })
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại')
+    } else if (user.status) {
+      throw new BadRequestException('Tài khoản đã được kích hoạt')
+    }
+    const code_verify = uuidv4()
+    await this.userModel.updateOne(
+      { email: user.email },
+      {
+        code_verify: code_verify,
+        code_verify_expires: dayjs().add(5, 'minutes').toDate(),
+      },
+    )
+    await this.sentEmailVerify(user.email, code_verify)
     return {
       id: user._id,
+    }
+  }
+  async checkCodeVerify(id: string, code: string) {
+    const user = await this.userModel.findOne({ _id: id })
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại')
+    } else if (user.status) {
+      throw new BadRequestException('Tài khoản đã được kích hoạt')
+    }
+    const checkTime = dayjs().isBefore(user.code_verify_expires)
+    if (!checkTime) {
+      throw new BadRequestException('Mã xác thực đã hết hạn')
+    } else if (user.code_verify !== code) {
+      throw new BadRequestException('Mã xác thực không chính xác')
+    }
+    await this.userModel.updateOne({ _id: id }, { status: true })
+    return {
+      id: user._id,
+    }
+  }
+  async changePassword(changePasswordDto: ChangePasswordDto) {
+    const user = await this.userModel.findOne({ _id: changePasswordDto.id })
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại')
+    }
+    const checkPassword = await comparePasswordHelper(
+      changePasswordDto.password,
+      user?.password,
+    )
+    if (!checkPassword) {
+      throw new BadRequestException('Mật khẩu Hiện tại không chính xác')
+    }
+
+    const checkTime = dayjs().isBefore(user.code_verify_expires)
+    if (!checkTime) {
+      throw new BadRequestException('Mã xác thực đã hết hạn')
+    }
+    await this.userModel.updateOne(
+      { _id: changePasswordDto.id },
+      {
+        password: await hashPasswordHelper(changePasswordDto.newPassword),
+      },
+    )
+    return {
+      id: user._id,
+      email: user.email,
     }
   }
 }
