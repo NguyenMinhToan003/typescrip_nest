@@ -17,6 +17,8 @@ import {
   CheckCodeVerifyDto,
   CreateAuthDto,
 } from './dto/create-auth.dto'
+import { GoogleOAuthGuard } from './passport/google-oauth.guard'
+
 
 @Controller('auth')
 export class AuthController {
@@ -74,5 +76,17 @@ export class AuthController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user
+  }
+
+  @Public()
+  @Get('/google')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuth(@Request() req) {}
+
+  @Public()
+  @Get('google-redirect')
+  @UseGuards(GoogleOAuthGuard)
+  googleAuthRedirect(@Request() req) {
+    return this.authService.googleLogin(req)
   }
 }
