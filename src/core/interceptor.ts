@@ -1,10 +1,12 @@
 import { RESPONSE_MESSAGE_KEY } from '@/decorator/customize'
 import {
+  ArgumentMetadata,
   CallHandler,
   ExecutionContext,
   HttpException,
   Injectable,
   NestInterceptor,
+  PipeTransform,
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { Observable, throwError } from 'rxjs'
@@ -31,6 +33,14 @@ export class ResponseInterceptor implements NestInterceptor {
         }
       }),
     )
+  }
+}
+@Injectable()
+export class FileSizeValidationPipe implements PipeTransform {
+  transform(value: any, metadata: ArgumentMetadata) {
+    // "value" is an object containing the file's attributes and metadata
+    const oneKb = 1000
+    return value.size < oneKb
   }
 }
 

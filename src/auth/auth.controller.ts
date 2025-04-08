@@ -19,7 +19,6 @@ import {
 } from './dto/create-auth.dto'
 import { GoogleOAuthGuard } from './passport/google-oauth.guard'
 
-
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
