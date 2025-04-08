@@ -3,6 +3,7 @@ import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
 import { ValidationPipe } from '@nestjs/common'
 import { ExceptionInterceptor, ResponseInterceptor } from './core/interceptor'
+import session from 'express-session'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -20,6 +21,13 @@ async function bootstrap() {
       whitelist: true,
     }),
   )
+  app.use(
+    session({
+      secret: 'toan-1-2-3',
+      resave: false,
+      saveUninitialized: false,
+    }),
+  )
   // Thêm interceptor xử lý lỗi toàn cục
   const reflector = app.get(Reflector)
   app.useGlobalInterceptors(
@@ -28,6 +36,8 @@ async function bootstrap() {
   )
   // Cấu hình global prefix
   app.setGlobalPrefix('api/v1', { exclude: [''] })
+  // setup socket io
+  const server = app.getHttpServer()
   await app.listen(port)
 }
 bootstrap()

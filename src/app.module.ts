@@ -11,10 +11,16 @@ import { PlaylistsModule } from '@/module/playlists/playlists.module'
 import { BannersModule } from '@/module/banners/banners.module'
 import { TagsModule } from '@/module/tags/tags.module'
 import { AuthModule } from '@/auth/auth.module'
-import { APP_GUARD } from '@nestjs/core'
-import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard'
 import { MailerModule } from '@nestjs-modules/mailer'
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
+import { BookModule } from './module/book/book.module'
+import { MessagesModule } from './module/messages/messages.module'
+import { PhotoModule } from './module/photo/photo.module'
+import { CategoryModule } from './module/category/category.module'
+import { guardProvier } from './Guard/guard.provider'
+import { TableModule } from './module/table/table.module'
+import { MulterModule } from '@nestjs/platform-express'
+
 @Module({
   imports: [
     UsersModule,
@@ -60,15 +66,20 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       }),
       inject: [ConfigService],
     }),
+    MulterModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        dest: configService.get<string>('MULTER_DEST'),
+      }),
+      inject: [ConfigService],
+    }),
+    BookModule,
+    MessagesModule,
+    PhotoModule,
+    CategoryModule,
+    TableModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      // Add this provider to apply the JwtAuthGuard to all routes
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+  providers: [...guardProvier, AppService],
 })
 export class AppModule {}
