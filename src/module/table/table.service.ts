@@ -15,7 +15,7 @@ export class TableService {
   }
 
   findAll() {
-    return `This action returns all table`
+    return this.tableRepository.find()
   }
 
   findOne(id: number) {

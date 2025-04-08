@@ -53,6 +53,7 @@ export class TableController {
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.tableService.findAll()
   }
